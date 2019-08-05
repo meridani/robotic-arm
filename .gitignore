@@ -1,2 +1,6 @@
 #Ignore vscode files
 .vscode
+.dep
+obj
+*.elf
+*.hex
