@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "movement.h"
+#include "positions.h"
 
 void InitPorts(void)
 {
@@ -18,7 +19,7 @@ void InitPorts(void)
     DDRE |= (AXIS_1_DIR | AXIS_2_DIR | AXIS_3_DIR | JAW_DIR | BASE_DIR);
     PORTE &= ~(AXIS_1_DIR | AXIS_2_DIR | AXIS_3_DIR | JAW_DIR | BASE_DIR);
 
-    DDRG |= (ROBOT_READY_BIT);
+    // DDRG |= (ROBOT_READY_BIT);
     PORTF |= (COMMAND_BIT_0 | COMMAND_BIT_1 | COMMAND_START_BIT);
 }
 
@@ -64,6 +65,7 @@ int main(void)
     uint8_t m_command;
 
     InitPorts();
+
     home_axes();
 
     while (1) {
@@ -72,27 +74,33 @@ int main(void)
             while ((PINF & (COMMAND_START_BIT)) == COMMAND_START_BIT) {
                 display_segment(LED_SEGMENT_C);
             }
-            m_command = read_command();
+            m_command      = read_command();
+            is_robot_ready = false;
             switch (m_command) {
             case 0:
                 display_segment(LED_SEGMENT_0);
-                move_to_position(robot_positions[0]);
+                move_to_position(INIT_POSITION_BASE_TIME);
+                is_robot_ready = true;
                 break;
 
             case 1:
                 display_segment(LED_SEGMENT_1);
-                move_to_position(robot_positions[1]);
-                extend_arm();
+                home_base();
+                grab();
+                is_robot_ready = true;
                 break;
 
             case 2:
                 display_segment(LED_SEGMENT_2);
-                move_to_position(robot_positions[2]);
+                drop();
+                is_robot_ready = true;
                 break;
 
             case 3:
                 display_segment(LED_SEGMENT_3);
-                move_to_position(robot_positions[3]);
+                end_base();
+                drop();
+                is_robot_ready = true;
                 break;
 
             default:

@@ -2,13 +2,14 @@
 #define _MAIN_H_
 
 #include <stdbool.h>
+#include "avr/io.h"
 
 #define BUILTIN_SW1 PB1
 #define BUILTIN_SW2 PB2
 #define BUILTIN_SW3 PB3
 #define BUILTIN_SW4 PB4
 
-#define ROBOT_READY_BIT (1 << PG1)
+// #define ROBOT_READY_BIT (1 << PG1)
 #define COMMAND_BIT_0 (1 << PF5)
 #define COMMAND_BIT_1 (1 << PF6)
 #define COMMAND_START_BIT (1 << PF7)

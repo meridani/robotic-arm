@@ -163,6 +163,13 @@ void home_base()
     move_base(STOP);
     current_positions.base = 0;
 }
+void end_base()
+{
+    move_base(RIGHT);
+    while ((PING & (BASE_SW_END)) == BASE_SW_END) {}
+    move_base(STOP);
+    current_positions.base = 9999;
+}
 void home_1()
 {
     move_1(RIGHT);
@@ -200,88 +207,91 @@ void open_jaw()
     move_jaw(LEFT);
     while ((PINF & (JAW_SW)) == JAW_SW) {}
     move_jaw(STOP);
-    // move_jaw(RIGHT);
-    // _delay_ms(INIT_POSITION_JAW_TIME);
-    // move_jaw(STOP);
     current_positions.jaw = 0;
 }
 
 void retract_arm()
 {
+    move_1(RIGHT);
+    our_delay(300);
+    move_2(RIGHT);
+
+    // while (((PINF & (AXIS_2_SW)) == AXIS_2_SW)) {}
+    do {
+        if (((PINF & (AXIS_2_SW)) != AXIS_2_SW)) {
+            move_2(STOP);
+        }
+
+        if (((PINF & (AXIS_1_SW)) != AXIS_1_SW)) {
+            move_1(STOP);
+        }
+    } while (PINF & (AXIS_2_SW | AXIS_1_SW));
+
+    move_2(STOP);
+    move_1(STOP);
 }
 
 void extend_arm()
 {
-    int time = 3000;
-
-    // Open Jaw
-    open_jaw();
-
-    // if (pos.joint_1 > current_positions.joint_1) {
-    //     time = pos.joint_1 - current_positions.joint_1;
-        move_2(LEFT);
-        our_delay(200);
-        move_1(LEFT);
-        our_delay(time);
-    // } else if (pos.joint_1 < current_positions.joint_1) {
-    //     time = current_positions.joint_1 - pos.joint_1;
-    //     move_2(RIGHT);
-    //     our_delay(100);
-    //     move_1(RIGHT);
-    //     our_delay(time);
-    //     // our_delay(350);
-    // } else {
-    //     move_1(STOP);
-    //     move_2(STOP);
-    // }
+    move_2(LEFT);
+    our_delay(200);
+    move_1(LEFT);
+    our_delay(DEFAULT_MOVE_TIME);
 
     move_1(STOP);
     move_2(STOP);
+    our_delay(10);
+
+    current_positions.joint_2 += DEFAULT_MOVE_TIME + 200;
+
     our_delay(200);
-
-    close_jaw();
-
-    our_delay(200);
-
-    move_1(RIGHT);
-    our_delay(300);
-    move_2(RIGHT);
-    our_delay(time);
-    move_1(STOP);
-
-    while ((PINF & (AXIS_2_SW)) == AXIS_2_SW) {}
-    move_2(STOP);
 }
 
-void move_to_position(struct position pos)
+void grab()
 {
-    int time = 0;
-    if (pos.base > current_positions.base) {
-        time = pos.base - current_positions.base;
+    extend_arm();
+    close_jaw();
+    retract_arm();
+}
+
+void drop()
+{
+    extend_arm();
+    open_jaw();
+    retract_arm();
+}
+
+void move_to_position(uint16_t pos)
+{
+    int time       = 0;
+    is_robot_ready = false;
+
+    if (pos > current_positions.base) {
+        time = pos - current_positions.base;
         move_base(RIGHT);
         our_delay(time);
-    } else if (pos.base < current_positions.base) {
-        time = current_positions.base - pos.base;
+    } else if (pos < current_positions.base) {
+        time = current_positions.base - pos;
         move_base(LEFT);
         our_delay(time);
         our_delay(350);
     } else {
         move_base(STOP);
     }
-    current_positions.base = pos.base;
+
+    current_positions.base = pos;
     move_base(STOP);
+    is_robot_ready = true;
 }
 
 bool home_axes(void)
 {
+    is_robot_ready = false;
     display_segment(LED_SEGMENT_A);
     _delay_ms(1000);
 
     // Home base axis
     display_segment(LED_SEGMENT_0);
-    // move_1(RIGHT);
-    // while ((PINF & (AXIS_1_SW)) == AXIS_1_SW) {}
-    // move_1(STOP);
     home_1();
     move_1(LEFT);
     _delay_ms(INIT_POSITION_1_TIME);
@@ -290,9 +300,6 @@ bool home_axes(void)
 
     // Home axis 1
     display_segment(LED_SEGMENT_1);
-    // move_2(RIGHT);
-    // while ((PINF & (AXIS_2_SW)) == AXIS_2_SW) {}
-    // move_2(STOP);
     home_2();
     move_2(LEFT);
     _delay_ms(INIT_POSITION_2_TIME);
@@ -301,9 +308,6 @@ bool home_axes(void)
 
     // Home axis 2
     display_segment(LED_SEGMENT_2);
-    // move_3(LEFT);
-    // while ((PINF & (AXIS_3_SW)) == AXIS_3_SW) {}
-    // move_3(STOP);
     home_3();
     move_3(RIGHT);
     _delay_ms(INIT_POSITION_3_TIME);
@@ -312,9 +316,6 @@ bool home_axes(void)
 
     // Home axis 3
     display_segment(LED_SEGMENT_3);
-    // move_base(LEFT);
-    // while ((PINF & (BASE_SW)) == BASE_SW) {}
-    // move_base(STOP);
     home_base();
     move_base(RIGHT);
     our_delay(INIT_POSITION_BASE_TIME);
@@ -323,9 +324,6 @@ bool home_axes(void)
 
     // Home Jaw
     display_segment(LED_SEGMENT_4);
-    // move_jaw(LEFT);
-    // while ((PINF & (JAW_SW)) == JAW_SW) {}
-    // move_jaw(STOP);
     open_jaw();
     move_jaw(RIGHT);
     _delay_ms(INIT_POSITION_JAW_TIME);
