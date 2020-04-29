@@ -4,3 +4,6 @@
 obj
 *.elf
 *.hex
+
+/bin
+/obj
