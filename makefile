@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension)./usr/lib/avr/include/
-TARGET = main
+TARGET = firmware
 
 
 # Object files directory
@@ -78,9 +78,10 @@ TARGET = main
 #     this an empty or blank macro!
 OBJDIR = obj
 
+OUTDIR = bin
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c
+SRC = main.c
 SRC += movement.c
 SRC += positions.c
 
@@ -406,11 +407,11 @@ build: hex
 #build: lib
 
 
-elf: $(TARGET).elf
-hex: $(TARGET).hex
-eep: $(TARGET).eep
-lss: $(TARGET).lss
-sym: $(TARGET).sym
+elf: bin/$(TARGET).elf
+hex: bin/$(TARGET).hex
+eep: bin/$(TARGET).eep
+lss: bin/$(TARGET).lss
+sym: bin/$(TARGET).sym
 LIBNAME=lib$(TARGET).a
 lib: $(LIBNAME)
 
@@ -592,13 +593,13 @@ clean: begin clean_list end
 clean_list :
 	@echo
 	@echo $(MSG_CLEANING)
-	$(REMOVE) $(TARGET).hex
-	$(REMOVE) $(TARGET).eep
-	$(REMOVE) $(TARGET).cof
-	$(REMOVE) $(TARGET).elf
-	$(REMOVE) $(TARGET).map
-	$(REMOVE) $(TARGET).sym
-	$(REMOVE) $(TARGET).lss
+	$(REMOVE) $(OUTDIR)/$(TARGET).hex
+	$(REMOVE) $(OUTDIR)/$(TARGET).eep
+	$(REMOVE) $(OUTDIR)/$(TARGET).cof
+	$(REMOVE) $(OUTDIR)/$(TARGET).elf
+	$(REMOVE) $(OUTDIR)/$(TARGET).map
+	$(REMOVE) $(OUTDIR)/$(TARGET).sym
+	$(REMOVE) $(OUTDIR)/$(TARGET).lss
 	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.o)
 	$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.lst)
 	$(REMOVE) $(SRC:.c=.s)
@@ -609,6 +610,7 @@ clean_list :
 
 # Create object files directory
 $(shell mkdir $(OBJDIR) 2>/dev/null)
+$(shell mkdir $(OUTDIR) 2>/dev/null)
 
 
 # Include the dependency files.
