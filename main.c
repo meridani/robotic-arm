@@ -8,8 +8,8 @@
 void InitPorts(void)
 {
     // Init 8 segment led outputs
-    DDRC |= (LED_A | LED_B | LED_C | LED_D | LED_E | LED_F | LED_G);
-    PORTC = (LED_A | LED_B | LED_C | LED_D | LED_E | LED_F | LED_G);
+    DDRC |= (LED_A | LED_B | LED_C | LED_D | LED_E | LED_F | LED_G | LED_DP);
+    PORTC = (LED_A | LED_B | LED_C | LED_D | LED_E | LED_F | LED_G | LED_DP);
 
     // Init Axis enable pins
     DDRD |= (AXIS_1_EN | AXIS_2_EN | AXIS_3_EN | JAW_EN | BASE_EN);
@@ -21,6 +21,9 @@ void InitPorts(void)
 
     // DDRG |= (ROBOT_READY_BIT);
     PORTF |= (COMMAND_BIT_0 | COMMAND_BIT_1 | COMMAND_START_BIT);
+
+    DDRB |= (READY_STATE);
+    PORTB &= ~(READY_STATE);
 }
 
 void display_segment(int display)
@@ -66,6 +69,10 @@ int main(void)
 
     InitPorts();
 
+    is_robot_ready = false;
+    PORTC |= LED_DP;
+    PORTB &= ~READY_STATE;
+
     home_axes();
 
     while (1) {
@@ -73,9 +80,15 @@ int main(void)
             // Wait for start signal
             while ((PINF & (COMMAND_START_BIT)) == COMMAND_START_BIT) {
                 display_segment(LED_SEGMENT_C);
+                PORTC &= ~LED_DP;
+                PORTB |= (READY_STATE);
             }
+
             m_command      = read_command();
             is_robot_ready = false;
+            PORTC |= LED_DP;
+            PORTB &= ~READY_STATE;
+
             switch (m_command) {
             case 0:
                 display_segment(LED_SEGMENT_0);
@@ -87,12 +100,19 @@ int main(void)
                 display_segment(LED_SEGMENT_1);
                 home_base();
                 grab();
+                move_base(RIGHT);
+                our_delay(INIT_POSITION_BASE_TIME);
+                move_base(STOP);
                 is_robot_ready = true;
                 break;
 
             case 2:
                 display_segment(LED_SEGMENT_2);
-                drop();
+                home_base();
+                move_base(RIGHT);
+                our_delay(INIT_POSITION_BASE_TIME);
+                move_base(STOP);
+                drop2();
                 is_robot_ready = true;
                 break;
 
@@ -100,6 +120,9 @@ int main(void)
                 display_segment(LED_SEGMENT_3);
                 end_base();
                 drop();
+                move_base(LEFT);
+                our_delay(INIT_POSITION_BASE_TIME);
+                move_base(STOP);
                 is_robot_ready = true;
                 break;
 

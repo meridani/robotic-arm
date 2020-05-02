@@ -8,7 +8,7 @@
 #define INIT_POSITION_1_TIME 1500U
 #define INIT_POSITION_2_TIME 300U
 #define INIT_POSITION_3_TIME 1000U
-#define INIT_POSITION_JAW_TIME 350U
+#define INIT_POSITION_JAW_TIME 400U
 
 struct position {
     uint16_t base;

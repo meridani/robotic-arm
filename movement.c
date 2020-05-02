@@ -212,8 +212,10 @@ void open_jaw()
 
 void retract_arm()
 {
-    move_1(RIGHT);
+    move_2(LEFT);
     our_delay(300);
+    move_1(RIGHT);
+    our_delay(200);
     move_2(RIGHT);
 
     // while (((PINF & (AXIS_2_SW)) == AXIS_2_SW)) {}
@@ -229,26 +231,37 @@ void retract_arm()
 
     move_2(STOP);
     move_1(STOP);
+
+    move_2(LEFT);
+    _delay_ms(INIT_POSITION_2_TIME);
+    move_2(STOP);
+
+    home_3();
+    move_3(RIGHT);
+    _delay_ms(INIT_POSITION_3_TIME);
+    move_3(STOP);
 }
 
 void extend_arm()
 {
-    move_2(LEFT);
-    our_delay(200);
     move_1(LEFT);
-    our_delay(DEFAULT_MOVE_TIME);
-
-    move_1(STOP);
+    our_delay(1600);
+    move_2(LEFT);
+    move_3(LEFT);
+    our_delay(500);
+    move_3(STOP);
+    our_delay(200);
     move_2(STOP);
+    move_1(STOP);
     our_delay(10);
 
-    current_positions.joint_2 += DEFAULT_MOVE_TIME + 200;
 
     our_delay(200);
 }
 
 void grab()
 {
+    open_jaw();
     extend_arm();
     close_jaw();
     retract_arm();
@@ -257,6 +270,17 @@ void grab()
 void drop()
 {
     extend_arm();
+    open_jaw();
+    retract_arm();
+}
+
+void drop2()
+{
+    move_1(LEFT);
+    our_delay(1500);
+    move_2(LEFT);
+    our_delay(2000);
+    stop_all();
     open_jaw();
     retract_arm();
 }
@@ -290,15 +314,15 @@ bool home_axes(void)
     display_segment(LED_SEGMENT_A);
     _delay_ms(1000);
 
-    // Home base axis
+    // Home 1
     display_segment(LED_SEGMENT_0);
     home_1();
-    move_1(LEFT);
-    _delay_ms(INIT_POSITION_1_TIME);
-    move_1(STOP);
+    // move_1(LEFT);
+    // _delay_ms(INIT_POSITION_1_TIME);
+    // move_1(STOP);
     current_positions.joint_1 = INIT_POSITION_1_TIME;
 
-    // Home axis 1
+    // Home axis 2
     display_segment(LED_SEGMENT_1);
     home_2();
     move_2(LEFT);
@@ -306,7 +330,7 @@ bool home_axes(void)
     move_2(STOP);
     current_positions.joint_2 = INIT_POSITION_2_TIME;
 
-    // Home axis 2
+    // Home axis 3
     display_segment(LED_SEGMENT_2);
     home_3();
     move_3(RIGHT);
@@ -314,7 +338,7 @@ bool home_axes(void)
     move_3(STOP);
     current_positions.joint_3 = INIT_POSITION_3_TIME;
 
-    // Home axis 3
+    // Home base
     display_segment(LED_SEGMENT_3);
     home_base();
     move_base(RIGHT);
@@ -325,9 +349,9 @@ bool home_axes(void)
     // Home Jaw
     display_segment(LED_SEGMENT_4);
     open_jaw();
-    move_jaw(RIGHT);
-    _delay_ms(INIT_POSITION_JAW_TIME);
-    move_jaw(STOP);
+    // move_jaw(RIGHT);
+    // _delay_ms(INIT_POSITION_JAW_TIME);
+    // move_jaw(STOP);
     current_positions.jaw = INIT_POSITION_JAW_TIME;
 
     stop_all();

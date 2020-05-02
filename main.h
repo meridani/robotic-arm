@@ -1,8 +1,8 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-#include <stdbool.h>
 #include "avr/io.h"
+#include <stdbool.h>
 
 #define BUILTIN_SW1 PB1
 #define BUILTIN_SW2 PB2
@@ -13,6 +13,7 @@
 #define COMMAND_BIT_0 (1 << PF5)
 #define COMMAND_BIT_1 (1 << PF6)
 #define COMMAND_START_BIT (1 << PF7)
+#define READY_STATE (1 << PB5)
 
 #define LED_G (1 << PC0)
 #define LED_A (1 << PC1)
@@ -21,6 +22,7 @@
 #define LED_E (1 << PC4)
 #define LED_C (1 << PC5)
 #define LED_D (1 << PC6)
+#define LED_DP (1 << PC7)
 
 #define LED_EMPTY 0x7F
 #define LED_SEGMENT_0 ~(LED_A | LED_B | LED_C | LED_D | LED_E | LED_F)

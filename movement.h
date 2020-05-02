@@ -59,6 +59,7 @@ extern void retract_arm(void);
 
 extern void grab(void);
 extern void drop(void);
+extern void drop2(void);
 
 extern void end_base(void);
 extern void home_base(void);
