@@ -53,7 +53,7 @@ void our_delay(int delay)
             move_3(STOP);
 
         if (!((PING & (JAW_SW_CLOSE)) == JAW_SW_CLOSE) && movement_directions.jaw == RIGHT) {
-            our_delay(150);
+            _delay_us(150000);
             move_jaw(STOP);
         }
         if (!((PINF & (JAW_SW)) == JAW_SW) && movement_directions.jaw == LEFT)
