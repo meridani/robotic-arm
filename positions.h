@@ -3,7 +3,7 @@
 
 #include <avr/io.h>
 
-// Position b (default position)
+// Alap beálláshoz használt időzítő állandók
 #define INIT_POSITION_BASE_TIME 4500
 #define INIT_POSITION_1_TIME 1500U
 #define INIT_POSITION_2_TIME 300U
